@@ -1,0 +1,8 @@
+---
+- name: QEMU/KVM Install
+  hosts: gmk1
+  become: true
+  become_user: hasuburero
+  gather_facts: false
+
+  tasks:
