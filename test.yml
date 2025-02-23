@@ -1,0 +1,22 @@
+---
+- name: Test
+  hosts: gmk1
+  become: true
+  become_user: hasuburero
+  gather_facts: false
+
+  tasks:
+    - name: test
+      ansible.builtin.command:
+        cmd: echo $USER
+      register: command_result
+    - name: print
+      debug:
+        var: command_result.stdout
+    - name: test2
+      command:
+        cmd: lscpu
+      register: command_result
+    - name: print result
+      debug:
+        var: command_result.stdout

@@ -1,0 +1,17 @@
+---
+- name: Warning Netplan configuration
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Netplan Configuration must be required before configuring iptables
+
+- name: Network configuration
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Configure iptables
+      command:
+        cmd: iptables -P FORWARD ACCEPT
+    - name: Destroying default
