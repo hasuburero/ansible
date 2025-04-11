@@ -1,0 +1,45 @@
+---
+- name: QEMU/KVM Install
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Install required package
+      apt:
+        name:
+          - qemu-kvm
+          - virt-manager
+          - virtinst
+          - bridge-utils
+          - libvirt-clients
+          - libvirt-daemon
+          - libvirt-daemon-system
+        state: present
+    - name: Enabling libvirtd
+      systemd:
+        name: libvirtd
+        enabled: true
+    - name: Starting libvirtd
+      systemd:
+        name: libvirtd
+        state: started
+
+- name: Adding user to group
+  hosts: gmk1
+  become: true
+
+  tasks:
+    - name: Print user
+      command:
+        cmd: echo $USER
+      register: command_result
+    - name: debug user
+      debug:
+        var: command_result.stdout
+    - name: Adding to kvm
+      command:
+        cmd: usermod -aG kvm $USER
+    - name: Adding to libvirt
+      command:
+        cmd: usermod -aG libvirt $USER

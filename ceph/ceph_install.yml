@@ -1,0 +1,49 @@
+---
+- name: known hosts configuration
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Copying hosts
+      copy:
+        src: ./objects/hosts
+        dest: /etc/
+
+- name: Apt Updating & Upgrading
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Updating
+      apt:
+        update_cache: true
+    - name: Upgrading
+      apt:
+        upgrade: true
+
+- name: Installing Docker & Ceph
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Installing
+      apt:
+        name:
+          - docker.io
+          - ceph
+- name: Installing Ceph Admin
+  hosts: storage1
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Install cephadm
+      apt:
+        name:
+          - cephadm
+    - name: bootstrap
+      command:
+        cmd: cephadm bootstrap --mon-ip 192.168.2.12
+      register: command_result
+    - name: debug log
+      debug:
+        var: command_result
