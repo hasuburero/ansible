@@ -1,0 +1,62 @@
+---
+- name: Adding master key
+  hosts: storage2,storage3
+  become: true
+  gather_facts: false
+  tasks:
+    - name: adding master key to authorized_key
+      authorized_key:
+        user: "root"
+        state: present
+        key: "{{ lookup('file', './objects/ceph.pub') }}"
+- name: Configure cephadm
+  hosts: storage1
+  become: true
+  gather_facts: false
+  tasks:
+    - name: install ceph-common
+      command:
+        cmd: cephadm install ceph-common
+    - name: Get ceph version
+      command:
+        cmd: ceph -v
+      register: command_result
+    - name: set var
+      set_fact:
+        ceph_version: "{{ command_result.stdout.split(' ')[4] }}"
+    #- name: deploy rgw
+    #  command:
+    #    cmd: ceph-deploy
+    #- name: adding repo
+    #  command:
+    #    cmd: cephadm add-repo --release {{ ceph_version }}
+    - name: adding storage2
+      command:
+        cmd: ceph orch host add storage2 192.186.2.15
+    - name: adding storage3
+      command:
+        cmd: ceph orch host add storage3 192.168.2.18
+    - name: ls hosts
+      command:
+        cmd: ceph orch host ls
+      register: command_result
+    - name: print debug
+      debug:
+        msg: "{{ command_result }}"
+    - name: Apply OSD
+      command:
+        cmd: ceph orch apply osd --all-available-devices
+    - name: ls devices
+      command:
+        cmd: ceph orch device ls --refresh
+      register: command_result
+    - name: set var
+      set_fact:
+        storages: "{{ command_result.stdout_lines }}"
+    - name: Adding OSD
+      vars:
+        targets: "{{ storages[item].split(' ') | map('trim') | select('truthy') | list }}"
+      command:
+        cmd: ceph orch daemon add osd --method raw "{{ targets[0] }}:{{ targets[1] }}"
+      loop: "{{ range(1, storages | length) | list }}"
+- name:

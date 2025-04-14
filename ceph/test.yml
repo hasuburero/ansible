@@ -1,0 +1,19 @@
+---
+- name:
+  hosts: storage1
+  become: true
+  gather_facts: false
+  tasks:
+    - name: ls devices
+      command:
+        cmd: ceph orch device ls --refresh
+      register: command_result
+    - name: set var
+      set_fact:
+        storages: "{{ command_result.stdout_lines }}"
+    - name: print debug
+      vars:
+        targets: "{{ storages[item].split(' ') | map('trim') | select('truthy') | list }}"
+      debug:
+        msg: "{{ targets[0] }}:{{ targets[1] }}"
+      loop: "{{ range(1, storages | length) | list }}"

@@ -1,0 +1,75 @@
+---
+- name: known hosts configuration
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Copying hosts
+      copy:
+        src: ./objects/hosts
+        dest: /etc/
+
+- name: Apt Updating & Upgrading
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Updating
+      apt:
+        update_cache: true
+    - name: Upgrading
+      apt:
+        upgrade: true
+
+- name: Installing Docker & Ceph
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Installing
+      apt:
+        name:
+          - docker.io
+          - ceph
+- name: Installing Ceph Admin
+  hosts: storage1
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Install cephadm
+      apt:
+        name:
+          - cephadm
+    - name: bootstrap
+      command:
+        cmd: cephadm bootstrap --mon-ip 192.168.2.12 --allow-overwrite
+      ignore_errors: true
+      register: command_result
+    - name: debug log
+      debug:
+        var: command_result
+- name: Adding Permission
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Get /etc/ssh/sshd_config
+      command:
+        cmd: cat /etc/ssh/sshd_config
+      register: command_result
+    - name: echo "PermitRootLogin" >> sshd_conf
+      command:
+        cmd: echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+      when: "'PermitRootLogin yes' not in command_result.stdout"
+    - name: grep root Passwd
+      command:
+        cmd: grep "root:" /etc/shadow
+      register: command_result
+    - name: checking if root passwd is set
+      debug:
+        msg: root passwd is set
+      when: command_result.stdout != "" and command_result.stdout.split(":")[1] != "*"
+    - name: checking if root passwd is empty or locked
+      debug:
+        msg: checking if root passwd is empty or locked
+      when: command_result.stdout.split(":")[1] == "*"
