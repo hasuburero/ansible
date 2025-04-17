@@ -30,12 +30,12 @@
     #- name: adding repo
     #  command:
     #    cmd: cephadm add-repo --release {{ ceph_version }}
-    - name: adding storage2
-      command:
-        cmd: ceph orch host add storage2 192.186.2.15
-    - name: adding storage3
-      command:
-        cmd: ceph orch host add storage3 192.168.2.18
+    #- name: adding storage2
+    #  command:
+    #    cmd: ceph orch host add storage2 192.186.2.15
+    #- name: adding storage3
+    #  command:
+    #    cmd: ceph orch host add storage3 192.168.2.18
     - name: ls hosts
       command:
         cmd: ceph orch host ls

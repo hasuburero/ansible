@@ -9,17 +9,17 @@
         src: ./objects/hosts
         dest: /etc/
 
-- name: Apt Updating & Upgrading
+- name: dnf Updating & Upgrading
   hosts: all
   become: true
   gather_facts: false
   tasks:
     - name: Updating
-      apt:
-        update_cache: true
+      command:
+        cmd: dnf upgrade --refresh
     - name: Upgrading
-      apt:
-        upgrade: true
+      command:
+        cmd: dnf upgrade
 
 - name: Installing Docker & Ceph
   hosts: all
@@ -27,19 +27,23 @@
   gather_facts: false
   tasks:
     - name: Installing
-      apt:
-        name:
-          - docker.io
-          - ceph
+      command:
+        cmd: dnf install docker ceph-common -y
+    - name: Start docker
+      command:
+        cmd: systemctl start docker
+    - name: Enable docker
+      command:
+        cmd: systemctl enable docker
+
 - name: Installing Ceph Admin
   hosts: storage1
   become: true
   gather_facts: false
   tasks:
     - name: Install cephadm
-      apt:
-        name:
-          - cephadm
+      command:
+        cmd: dnf install cephadm -y
     - name: bootstrap
       command:
         cmd: cephadm bootstrap --mon-ip 192.168.2.12 --allow-overwrite
@@ -58,9 +62,11 @@
         cmd: cat /etc/ssh/sshd_config
       register: command_result
     - name: echo "PermitRootLogin" >> sshd_conf
-      command:
-        cmd: echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
-      when: "'PermitRootLogin yes' not in command_result.stdout"
+      debug:
+        msg: "you have to adding PermitRootLogin yes in /etc/ssh/sshd_config"
+      #command:
+      #  cmd: echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+      when: "'PermitRootLogin yes' not in command_result.stdout or 'PermitRootLogin no' in command_result.stdout"
     - name: grep root Passwd
       command:
         cmd: grep "root:" /etc/shadow
