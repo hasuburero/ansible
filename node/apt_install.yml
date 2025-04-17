@@ -1,0 +1,22 @@
+---
+- name: apt Update Upgrade Install
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    #- name: apt update
+    #  apt:
+    #    updata_cache: true
+    #- name: apt upgrade
+    #  apt:
+    #    upgrade: true
+    - name: install
+      apt:
+        name:
+          - libgtk-3.0
+          - libnss3
+          - libdrm-dev
+          - libgbm-dev
+          - libasound2
+          - fonts-ipaexfont

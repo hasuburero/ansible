@@ -1,0 +1,13 @@
+---
+- name: apt Update Upgrade
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: update package list
+      command:
+        cmd: dnf upgrade --refresh
+    - name: dnf upgrade
+      command:
+        cmd: dnf upgrade
