@@ -1,0 +1,10 @@
+virt-install \
+--name nextcloud-vm \
+--memory 8192 \
+--vcpus 8 \
+--disk /var/lib/libvirt/images/nextcloud.qcow2 \
+--location /home/hiraide/hasuburero/os-img/ubuntu-24.04.2-live-server-amd64.iso,kernel=casper/vmlinuz,initrd=casper/initrd \
+--network bridge=kvmbr0,model=virtio \
+--nographics \
+--console pty,target_type=serial \
+--extra-args='console=ttyS0,115200n8'
