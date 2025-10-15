@@ -57,3 +57,14 @@
       args:
         executable: /bin/bash
         chdir: "{{ ansible_user_dir }}"
+
+- name: Installing docker
+  hosts: workers
+  become: false
+  gather_facts: true
+
+  tasks:
+    - name: Installing docker.io
+      apt:
+        name:
+          - docker.io
