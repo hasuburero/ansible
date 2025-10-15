@@ -1,0 +1,59 @@
+---
+- name: apt Update Upgrade
+  hosts: workers # when executing playbook, you can limit hosts with "--limit $children"
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: apt update
+      apt:
+        update_cache: true
+    - name: apt upgrade
+      apt:
+        upgrade: true
+
+- name: Setup Golang
+  hosts: workers
+  become: false
+  gather_facts: true
+  vars:
+    repo_url: https://github.com/syndbg/goenv.git
+    dest_path: ~/.goenv
+
+  tasks:
+    - name: cloning goenv
+      ansible.builtin.git:
+        repo: "{{ repo_url }}"
+        dest: "{{ dest_path }}"
+        # version: main
+        force: yes
+        accept_hostkey: yes
+    - name: Writing path to .bashrc
+      ansible.builtin.blockinfile:
+        path: "~/.bashrc"
+        block: |
+          # >>> goenv initialization >>>
+          export GOENV_ROOT="$HOME/.goenv"
+          export PATH="$GOENV_ROOT/bin:$PATH"
+          eval "$(goenv init -)"
+          # <<< goenv initialization <<<
+        create: true
+        marker: "# {mark} ANSIBLE MANAGED BLOCK goenv"
+    - name: Installing Golang version to 1.25.1
+      ansible.builtin.shell: |
+        export GOENV_ROOT="$HOME/.goenv"
+        export PATH="$GOENV_ROOT/bin:$PATH"
+        eval "$(goenv init -)"
+        goenv install 1.25.1
+      args:
+        executable: /bin/bash
+        chdir: "{{ ansible_user_dir }}"
+    - name: Switching Global Golang version to 1.25.1
+      ansible.builtin.shell: |
+        export GOENV_ROOT="$HOME/.goenv"
+        export PATH="$GOENV_ROOT/bin:$PATH"
+        eval "$(goenv init -)"
+        goenv global 1.25.1
+      args:
+        executable: /bin/bash
+        chdir: "{{ ansible_user_dir }}"
