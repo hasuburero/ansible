@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  db:
+    image: mariadb:10.5
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      - MARIADB_ROOT_PASSWORD=doly2025
+      - MARIADB_DATABASE=nextcloud
+      - MARIADB_USER=nextcloud
+      - MARIADB_PASSWORD=doly2025
+  app:
+    image: nextcloud:latest
+    restart: always
+    ports:
+      - 8080:80
+    volumes:
+      - nextcloud:/var/www/html
+    depends_on:
+      - db
+    environment:
+      - NEXTCLOUD_DB_HOST=db
+      - NEXTCLOUD_DB_NAME=nextcloud
+      - NEXTCLOUD_DB_USER=nextcloud
+      - NEXTCLOUD_DB_PASSWORD=doly2025
+      - NEXTCLOUD_TRUSTED_DOMAINS=192.168.2.20 # 必要に応じて変更
+
+volumes:
+  db:
+  nextcloud:
