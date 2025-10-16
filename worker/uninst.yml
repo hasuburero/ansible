@@ -1,0 +1,16 @@
+---
+- name: uninstall 1.25.2
+  hosts: workers
+  become: false
+  gather_facts: true
+
+  tasks:
+    - name: uninstalling golang version 1.25.2
+      ansible.builtin.shell: |
+        export GOENV_ROOT="$HOME/.goenv"
+        export PATH="$GOENV_ROOT/bin:$PATH"
+        eval "$(goenv init -)"
+        yes | goenv uninstall 1.25.2
+      args:
+        executable: /bin/bash
+        chdir: "{{ ansible_user_dir }}"

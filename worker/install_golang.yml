@@ -1,17 +1,4 @@
 ---
-- name: apt Update Upgrade
-  hosts: workers # when executing playbook, you can limit hosts with "--limit $children"
-  become: true
-  gather_facts: true
-
-  tasks:
-    - name: apt update
-      apt:
-        update_cache: true
-    - name: apt upgrade
-      apt:
-        upgrade: true
-
 - name: Setup Golang
   hosts: workers
   become: false
@@ -44,10 +31,14 @@
         export GOENV_ROOT="$HOME/.goenv"
         export PATH="$GOENV_ROOT/bin:$PATH"
         eval "$(goenv init -)"
-        goenv install 1.25.1
+        yes | goenv install 1.25.2
       args:
         executable: /bin/bash
         chdir: "{{ ansible_user_dir }}"
+      environment:
+        GOENV_ROOT: "{{ ansible_user_dir }}/.goenv"
+        PATH: "{{ ansible_user_dir }}/.goenv/bin:{{ lookup('env', 'PATH') }}"
+        GOENV_DOWNLOAD_PROMPT: 0
     - name: Switching Global Golang version to 1.25.1
       ansible.builtin.shell: |
         export GOENV_ROOT="$HOME/.goenv"
@@ -57,14 +48,3 @@
       args:
         executable: /bin/bash
         chdir: "{{ ansible_user_dir }}"
-
-- name: Installing docker
-  hosts: workers
-  become: false
-  gather_facts: true
-
-  tasks:
-    - name: Installing docker.io
-      apt:
-        name:
-          - docker.io

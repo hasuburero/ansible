@@ -1,0 +1,13 @@
+---
+- name: apt Update Upgrade
+  hosts: workers # when executing playbook, you can limit hosts with "--limit $children"
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: apt update
+      apt:
+        update_cache: true
+    - name: apt upgrade
+      apt:
+        upgrade: true

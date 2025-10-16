@@ -1,0 +1,17 @@
+---
+- name: Installing docker
+  hosts: workers
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Installing docker.io
+      apt:
+        name:
+          - docker.io
+    - name: Add the current user to the docker group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+        state: present
