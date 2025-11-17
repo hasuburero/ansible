@@ -26,7 +26,7 @@
         state: started
 
 - name: Adding user to group
-  hosts: gmk1
+  hosts: all
   become: true
 
   tasks:
