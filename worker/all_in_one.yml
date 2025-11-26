@@ -74,3 +74,24 @@
         groups: docker
         append: yes
         state: present
+    - name: Remove daemon.json
+      ansible.builtin.file:
+        path: /etc/docker/daemon.json
+        state: absent
+    - name: Add Insecure-registries
+      ansible.builtin.blockinfile:
+        path: "/etc/docker/daemon.json"
+        block: |
+          {
+            "insecure-registries": ["192.168.128.2:5000"]
+          }
+        create: true
+        marker: ""
+    - name: restart docker
+      ansible.builtin.systemd:
+        name: docker.service
+        state: reloaded
+      register: docker_reload_result
+    - name: print docker reload result
+      ansible.builtin.debug:
+        msg: "docker daemon reload has been completed. status: {{ docker_reload_result }}"
