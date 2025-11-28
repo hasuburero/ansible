@@ -1,0 +1,21 @@
+---
+- name: Testing Go
+  hosts: workers
+  become: false
+  gather_facts: true
+
+  tasks:
+    - name: Get Go Version
+      ansible.builtin.shell: |
+        export GOENV_ROOT="$HOME/.goenv"
+        export PATH="$GOENV_ROOT/bin:$PATH"
+        eval "$(goenv init -)"
+        goenv global 1.25.1
+        go version
+      args:
+        executable: /bin/bash
+        chdir: "{{ ansible_user_dir }}"
+      register: version_result
+    - name: Print version
+      ansible.builtin.debug:
+        msg: "{{ version_result }}"

@@ -1,6 +1,6 @@
 ---
 - name: apt Update Upgrade
-  hosts: workers # when executing playbook, you can limit hosts with "--limit $children"
+  hosts: all # when executing playbook, you can limit hosts with "--limit $children"
   become: true
   gather_facts: true
 

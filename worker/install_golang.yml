@@ -1,6 +1,6 @@
 ---
 - name: Setup Golang
-  hosts: workers
+  hosts: all
   become: false
   gather_facts: true
   vars:

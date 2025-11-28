@@ -1,0 +1,26 @@
+---
+- name: Running Docker workload
+  hosts: all
+  become: false
+  gather_facts: true
+
+  tasks:
+    - name: Copying Program
+      ansible.builtin.copy:
+        src: ./worker
+        dest: ~/test/worker/
+        owner: doly
+        group: doly
+        mode: "0666"
+    - name: Run Go Program
+      ansible.builtin.shell: |
+        export GOENV_ROOT="$HOME/.goenv"
+        export PATH="$GOENV_ROOT/bin:$PATH"
+        eval "$(goenv init -)"
+        goenv global 1.25.1
+        cd ~/test/worker/worker/
+        go run ~/test/worker/worker/main.go
+      args:
+        executable: /bin/bash
+        chdir: "{{ ansible_user_dir }}"
+      register: version_result
