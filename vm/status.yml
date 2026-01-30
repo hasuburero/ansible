@@ -1,0 +1,14 @@
+---
+- name: OS Image Copy
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: virsh list
+      community.libvirt.virt:
+        command: info
+      register: vm_status
+    - name: print status
+      debug:
+        var: vm_status

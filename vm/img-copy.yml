@@ -1,0 +1,14 @@
+---
+- name: OS Image Copy
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Copying OS Image
+      ansible.builtin.copy:
+        src: ./os-img/ubuntu-24.04.2-live-server-amd64.iso
+        dest: /var/lib/libvirt/boot/
+        owner: root
+        group: root
+        mode: "0600"

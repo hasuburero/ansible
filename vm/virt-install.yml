@@ -1,0 +1,30 @@
+---
+- name: Virt-Install
+  hosts: all
+  become: true
+  gather_facts: true
+
+  vars:
+    - vm_names:
+        - { name: test01 }
+        - { name: test02 }
+    - location: ""
+
+  tasks:
+    - name: Install New Virtual Machine
+      community.libvirt.virt_install:
+        name: ubuntu-server
+        memory: 2048
+        vcpus: 2
+        disks:
+          - size: 25
+        osinfo:
+          name: ubuntu20.04
+        location: http://archive.ubuntu.com/ubuntu/dists/focal/main/installer-amd64/
+        unattended:
+          profile: jeos
+          admin_password_file: /tmp/root_password
+          user_login: ansible
+          user_password_file: /tmp/user_password
+        networks:
+          - network: default
